@@ -13,14 +13,16 @@ Running with VERSION=min will use the lowest available version of a package,
 for a version specification of format
   "~>0.13.0" this will run with "0.13.0",
   ">=0.13.0" this will run with "0.13.0",
-  ">=0.13.0 <0.15.0" this will run with "0.13.0"
+  ">=0.13.0 <0.15.0" this will run with "0.13.0",
+  "0.13.0" this will run with "0.13.0"
   otherwise error.
 
 Running with VERSION=max will use the highest available version of a package,
 for a version specification of format
   "~>0.13.0" this will run with "~>0.13.0",
   ">=0.13.0" this will run with ">=0.13.0",
-  ">=0.13.0 <0.15.0" this will run with "<0.15.0"
+  ">=0.13.0 <0.15.0" this will run with "<0.15.0",
+  "0.13.0" this will run with "0.13.0"
   otherwise error.
 
 Running with VERSION=both will run this script first with max, then with min.
@@ -176,6 +178,8 @@ int doRun(string ver, string pkg, string dc, string[] cmd)
 
 string resolveVersion(string verRange, string wanted)
 {
+	import std.ascii : isDigit;
+	
 	if (verRange.startsWith("~>"))
 	{
 		switch (wanted)
@@ -215,6 +219,11 @@ string resolveVersion(string verRange, string wanted)
 				assert(false, "unknown target version " ~ wanted);
 			}
 		}
+	}
+	else if (verRange.length && verRange[0].isDigit)
+	{
+		// exact range
+		return verRange;
 	}
 	else
 		throw new Exception("Unsupported version range specifier to multi-test: "
